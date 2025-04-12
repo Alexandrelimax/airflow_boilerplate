@@ -1,0 +1,24 @@
+steps:
+  # Etapa 1: Build da imagem Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/api-model-registry/api-ml-model', '.']
+
+  # Etapa 2: Push da imagem para o Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/api-model-registry/api-ml-model']
+
+  # Etapa 3: Deploy no Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - 'gcloud'
+      - 'run'
+      - 'deploy'
+      - 'api-modelo-ml'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/api-model-registry/api-ml-model'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
+# Imagens que estão sendo construídas (para rastreamento e cache)
+images:
+  - us-central1-docker.pkg.dev/$PROJECT_ID/api-model-registry/api-ml-model
