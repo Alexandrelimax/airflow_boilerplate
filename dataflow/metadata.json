@@ -1,0 +1,18 @@
+{
+    "name": "Uppercase Dataflow Job",
+    "description": "Lê CSV, transforma nomes em maiúsculo e salva no BigQuery",
+    "parameters": [
+        {
+            "name": "input",
+            "label": "Caminho do CSV no GCS",
+            "param_type": "TEXT",
+            "help_text": "gs://bucket/input.csv"
+        },
+        {
+            "name": "output_table",
+            "label": "Tabela destino BigQuery",
+            "param_type": "TEXT",
+            "help_text": "dataset.table"
+        }
+    ]
+}

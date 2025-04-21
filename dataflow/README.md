@@ -1,17 +1,22 @@
-# 🚀 Dataflow Boilerplate (Apache Beam + BigQuery)
+# 🚀 Dataflow Boilerplate (Apache Airflow + Apache Beam com Flex Template + BigQuery + Terraform)
 
-Este exemplo mostra como criar um pipeline com Apache Beam, rodando no Dataflow, que:
+Este exemplo mostra como criar um pipeline com Apache Beam, empacotar como Docker, gerar um Flex Template e executá-lo no Dataflow.  
+
+O pipeline:
 - Lê um arquivo CSV do Cloud Storage (GCS)
-- Realiza uma transformação simples (ex: deixa o nome em maiúsculas)
-- Salva os dados no BigQuery
+- Converte os nomes para letras maiúsculas
+- Salva os dados em uma tabela no BigQuery
 
 Inclui:
-- Pipeline Apache Beam (`pipeline/main.py`)
-- Empacotamento com `setup.py`
-- Script de execução (`run.sh`)
-- Duas versões de DAG do Airflow:
-  - Usando operador clássico (`classic_operator_dag.py`)
-  - Usando sintaxe moderna com `@task` e `DataflowHook` (`modern_taskflow_dag.py`)
+
+- Pipeline Apache Beam (`pipeline.py`)
+- `Dockerfile` com base no SDK oficial do Beam
+- `metadata.json` com parâmetros do template
+- Script `build_dataflow.sh` para build e upload do template
+- Infraestrutura com Terraform para criar dataset, tabela e executar o job
+- Duas DAGs Airflow de exemplo:
+  - Usando operador clássico
+  - Usando sintaxe moderna com `@task` e `DataflowHook`
 
 ---
 
@@ -19,67 +24,129 @@ Inclui:
 
 ```bash
 dataflow/
- ├── dags/ │ 
- ├── classic_operator_dag.py # DAG usando operador Dataflow clássico 
- │ └── modern_taskflow_dag.py # DAG usando @task e DataflowHook 
- ├── pipeline/ 
- │ └── main.py # Código do pipeline Beam 
- ├── requirements.txt 
- ├── setup.py # Empacotamento pro Dataflow 
- ├── run.sh # Executa local ou envia pro Dataflow 
- └── README.md
+├── dag/
+│   ├── classic_operator_dag.py     # DAG com operador clássico
+│   └── modern_taskflow_dag.py      # DAG com @task e Hook
+├── terraform/                      # Infraestrutura com Terraform
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── terraform.tfvars
+│   └── outputs.tf
+├── build.sh                        # Script que builda e envia imagem/template
+├── Dockerfile                      # Imagem base Beam SDK
+├── metadata.json                   # Parâmetros do Flex Template
+├── pipeline.py                     # Código do pipeline Apache Beam
+├── requirements.txt                # Dependências do pipeline
+└── README.md
 ```
-
 
 ---
 
 ## 📦 Pré-requisitos
 
-- Projeto no GCP com APIs habilitadas:
+- Projeto GCP com as seguintes APIs ativadas:
   - Cloud Storage
   - BigQuery
   - Dataflow
-- Bucket no GCS criado com:
-  - `input/data.csv` (com cabeçalho: `id,name,age`)
-  - Pasta `temp/` para staging
-  - Pasta `dataflow/` para salvar o `main.py` se for usar no Airflow
-- Dataset e tabela no BigQuery com schema:
-  - `id:INTEGER`, `name:STRING`, `age:INTEGER`
+  - Artifact Registry
+
+- Buckets criados manualmente:
+  - Um bucket para armazenar o CSV  
+    Ex: `gs://bucket/csv/data.csv`
+  - Um bucket para armazenar o Flex Template  
+    Ex: `gs://<project-id>-dataflow-templates`
 
 ---
 
-## ▶️ Executar via terminal (sem Airflow)
+## 🛠️ Build e Deploy do Template
 
-1. Ajuste o `run.sh` com seu:
+1. Edite o script `build_dataflow.sh` com:
    - `PROJECT_ID`
    - `REGION`
-   - `BUCKET_NAME`
-   - `DATASET` e `TABLE`
+   - `ARTIFACT_ID`
+   - `IMAGE_NAME`
 
-2. Rode o script:
+2. Execute:
+
 ```bash
-bash run.sh
+chmod +x build.sh
+./build.sh
 
 ```
+O script irá:
 
-☁️ **Executar via Airflow**
+ - Construir a imagem Docker do pipeline
 
-✅ **Opção 1: Usando operador clássico**  
-`Arquivo: dags/classic_operator_dag.py`  
+ - Fazer push para o Artifact Registry
 
-- Usa `DataflowCreatePythonJobOperator`  
-- Requer que o `main.py` esteja no GCS: `gs://<bucket>/dataflow/main.py`  
+ - Gerar o Flex Template no GCS com base no metadata.json
 
-✅ **Opção 2: Usando sintaxe moderna (@task + hook)**  
-`Arquivo: dags/modern_taskflow_dag.py`  
+## ☁️ Executar via Terraform
 
-- Usa `@task` com `DataflowHook`  
-- Mais flexível e reutilizável  
+1. Configure o arquivo `terraform.tfvars` com seus valores:
 
-✨ **Personalizações**  
-- Mude o nome das colunas e lógica de transformação no `pipeline/main.py`  
-- Alterne entre `WriteToBigQueryDisposition.WRITE_APPEND` ou `WRITE_TRUNCATE`  
-- Adicione validações, filtros, joins, etc.  
+```hcl
+project_id         = "meu-projeto-id"
+region             = "us-central1"
+bq_dataset_id      = "dataset_teste"
+bq_table_id        = "pessoas"
+bq_schema_file     = "./schemas/pessoas_schema.json"
+template_bucket    = "meu-bucket-templates"
+template_path      = "templates/uppercase-dataflow-template.json"
+gcs_bucket_name    = "bucket-teste-saida"
+gcs_input_path     = "csv/data.csv"
+dataflow_job_name  = "job-pessoas-uppercase"
+```
+Execute:
 
-✅ **Dica final**  
-Este boilerplate é a base. Copie e cole como template para novos pipelines!
+```bash
+cd terraform
+terraform init
+terraform apply -var-file="terraform.tfvars"
+```
+
+## ☁️ Executar via Console (sem Terraform)
+
+Você também pode executar o Flex Template manualmente através do Console do GCP:
+
+1. Acesse **Dataflow > Criar job**
+2. Selecione **Modelo personalizado**
+3. Informe o caminho do template:  
+   `gs://meu-bucket-templates/templates/uppercase-dataflow-template.json`
+4. Preencha os parâmetros:
+
+   ```text
+   input: gs://bucket-teste-saida/csv/data.csv
+   output_table: dataset_teste.pessoas
+   ```
+
+## ☁️ Executar via Airflow
+
+### ✅ Clássico
+
+**Arquivo:** `dag/classic_operator_dag.py`
+
+- Utiliza o operador `DataflowFlexTemplateOperator`
+- Boa opção para quem prefere a abordagem declarativa tradicional
+
+---
+
+### ✅ Moderno
+
+**Arquivo:** `dag/modern_taskflow_dag.py`
+
+- Utiliza `@task` com `DataflowHook` e `start_flex_template`
+- Recomendado para quem busca mais flexibilidade, reutilização de código e controle de fluxo dinâmico
+
+---
+
+## ✨ Personalizações
+
+- Edite o arquivo `pipeline.py` para modificar a transformação de dados
+- Altere o `pessoas_schema.json` para incluir ou remover colunas
+- Atualize o `metadata.json` para adicionar novos parâmetros ao Flex Template
+- Ajuste a forma de escrita no BigQuery:
+
+  ```python
+  write_disposition = beam.io.BigQueryDisposition.WRITE_APPEND
+  ```
