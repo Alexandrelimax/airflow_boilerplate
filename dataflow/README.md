@@ -93,7 +93,7 @@ bq_table_id        = "pessoas"
 bq_schema_file     = "./schemas/pessoas_schema.json"
 template_bucket    = "meu-bucket-templates"
 template_path      = "templates/uppercase-dataflow-template.json"
-gcs_bucket_name    = "bucket-teste-saida"
+gcs_bucket_name    = "bucket"
 gcs_input_path     = "csv/data.csv"
 dataflow_job_name  = "job-pessoas-uppercase"
 ```
@@ -116,7 +116,7 @@ Você também pode executar o Flex Template manualmente através do Console do G
 4. Preencha os parâmetros:
 
    ```text
-   input: gs://bucket-teste-saida/csv/data.csv
+   input: gs://bucket/csv/data.csv
    output_table: dataset_teste.pessoas
    ```
 
