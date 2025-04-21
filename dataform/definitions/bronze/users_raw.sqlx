@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  schema: "bronze"
+}
+
+SELECT
+  user_id,
+  name,
+  email,
+  created_at
+FROM
+  `raw_ecommerce.users`

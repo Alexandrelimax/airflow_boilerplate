@@ -1,0 +1,12 @@
+config {
+  type: "assertion",
+  tags: ["assertion", "data_quality"],
+  name: "assert_unique_order"
+}
+
+SELECT
+  order_id,
+  COUNT(*) AS occurrences
+FROM ${ref("orders_cleaned")}
+GROUP BY order_id
+HAVING COUNT(*) > 1

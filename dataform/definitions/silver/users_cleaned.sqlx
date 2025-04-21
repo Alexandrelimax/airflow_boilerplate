@@ -1,0 +1,12 @@
+config {
+  type: "table",
+  schema: "silver"
+}
+
+SELECT
+  user_id,
+  INITCAP(name) AS name,
+  LOWER(email) AS email,
+  created_at
+FROM ${ref("bronze.users_raw")}
+WHERE email IS NOT NULL

@@ -1,0 +1,4 @@
+product_id,product_name,category,price,updated_at
+10,mouse gamer,eletronicos,120.00,"2024-03-01"
+11,teclado mecanico,eletronicos,250.00,"2024-03-02"
+10,mouse gamer,eletronicos,110.00,"2024-03-05"

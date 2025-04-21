@@ -1,0 +1,4 @@
+user_id,name,email,created_at
+100,joão,jOAO@email.com,"2023-12-01"
+101,Ana,ana@domain.com,"2024-01-15"
+102,,maria@email.com,"2024-02-20"

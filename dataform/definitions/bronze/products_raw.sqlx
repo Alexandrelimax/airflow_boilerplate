@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  schema: "bronze"
+}
+
+SELECT
+  product_id,
+  product_name,
+  category,
+  price,
+  updated_at
+FROM
+  `raw_ecommerce.products`

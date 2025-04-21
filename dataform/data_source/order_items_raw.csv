@@ -1,0 +1,4 @@
+order_item_id,order_id,product_id,quantity,price
+1000,1,10,1,120.00
+1001,2,11,2,250.00
+1002,3,10,1,110.00
