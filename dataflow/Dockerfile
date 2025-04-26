@@ -1,9 +1,16 @@
-FROM apache/beam_python3.12_sdk:2.64.0
+FROM gcr.io/dataflow-templates-base/python3-template-launcher-base
+
+ARG DIR=/dataflow/template
+RUN mkdir -p ${DIR}
+WORKDIR ${DIR}
 
 COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY pipeline.py .
 
-ENTRYPOINT ["python", "pipeline.py"]
+# Atualiza o pip e instala dependências
+RUN pip install --upgrade pip
+RUN pip install apache-beam[gcp]
+RUN pip install -r requirements.txt
+
+# Define para o Dataflow onde estão os arquivos
+ENV FLEX_TEMPLATE_PYTHON_PY_FILE="${DIR}/pipeline.py"

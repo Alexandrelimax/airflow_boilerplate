@@ -1,18 +1,21 @@
 {
     "name": "Uppercase Dataflow Job",
-    "description": "Lê CSV, transforma nomes em maiúsculo e salva no BigQuery",
+    "description": "Template para transformar texto em caixa alta",
     "parameters": [
         {
             "name": "input",
-            "label": "Caminho do CSV no GCS",
-            "param_type": "TEXT",
-            "help_text": "gs://bucket/input.csv"
+            "label": "Arquivo de entrada no GCS",
+            "helpText": "Caminho para o arquivo de entrada no Cloud Storage",
+            "paramType": "TEXT"
         },
         {
             "name": "output_table",
-            "label": "Tabela destino BigQuery",
-            "param_type": "TEXT",
-            "help_text": "dataset.table"
+            "label": "Tabela de saída no BigQuery",
+            "helpText": "Nome da tabela no formato dataset.table",
+            "paramType": "TEXT"
         }
-    ]
+    ],
+    "environment": {
+        "FLEX_TEMPLATE_PYTHON_PY_FILE": "/dataflow/template/pipeline.py"
+    }
 }

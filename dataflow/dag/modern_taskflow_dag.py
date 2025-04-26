@@ -9,7 +9,7 @@ REGION = 'us-central1'
 TEMPLATE_BUCKET = 'seu-bucket-templates'
 TEMPLATE_PATH = 'templates/uppercase-dataflow-template.json'
 
-GCS_INPUT_PATH = 'gs://bucket-teste-saida/csv/data.csv'
+GCS_INPUT_PATH = 'gs://bucket/csv/data.csv'
 BQ_OUTPUT_TABLE = 'dataset_teste.pessoas'
 
 default_args = {

@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket  = "terraform-state-meu-projeto"
-    prefix  = "dataflow"
+    bucket  = "{BUCKET_NAME}"
+    prefix  = "dataflow/terraform.tfstate"
   }
 }
