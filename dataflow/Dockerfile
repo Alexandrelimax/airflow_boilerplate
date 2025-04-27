@@ -9,7 +9,6 @@ COPY pipeline.py .
 
 # Atualiza o pip e instala dependências
 RUN pip install --upgrade pip
-RUN pip install apache-beam[gcp]
 RUN pip install -r requirements.txt
 
 # Define para o Dataflow onde estão os arquivos

@@ -2,13 +2,15 @@ from airflow import models
 from airflow.providers.google.cloud.operators.dataflow import DataflowStartFlexTemplateOperator
 from airflow.utils.dates import days_ago
 from datetime import timedelta
+import yaml
+from pathlib import Path
+from uuid import uuid4
 
-PROJECT_ID = 'seu-projeto-id'
-REGION = 'us-central1'
-BUCKET_NAME = 'seu-bucket-templates'
-TEMPLATE_PATH = 'templates/uppercase-dataflow-template.json'
-GCS_INPUT_PATH = 'gs://bucket/csv/data.csv'
-BQ_OUTPUT_TABLE = 'dataset_teste.pessoas'
+# Load config.yaml
+CONFIG_PATH = Path('include/config/config.yaml')
+
+with open(CONFIG_PATH, 'r') as f:
+    CONFIG = yaml.safe_load(f)
 
 default_args = {
     'start_date': days_ago(1),
@@ -21,21 +23,32 @@ with models.DAG(
     default_args=default_args,
     schedule_interval=None,
     catchup=False,
+    max_active_runs=1,
     tags=['dataflow', 'beam', 'flex-template'],
 ) as dag:
 
     run_flex_template = DataflowStartFlexTemplateOperator(
         task_id='run_flex_template_pipeline',
-        project_id=PROJECT_ID,
-        location=REGION,
+        project_id=CONFIG['dataflow']['project_id'],
+        location=CONFIG['dataflow']['region'],
         body={
             'launchParameter': {
-                'jobName': 'flex-csv-to-bq-{{ ds_nodash }}',
-                'containerSpecGcsPath': f'gs://{BUCKET_NAME}/{TEMPLATE_PATH}',
-                'parameters': {
-                    'input': GCS_INPUT_PATH,
-                    'output_table': BQ_OUTPUT_TABLE,
-                }
+                'jobName': f'dataflow-classic-{uuid4().hex}',
+                'containerSpecGcsPath': f"gs://{CONFIG['dataflow']['bucket_name']}/{CONFIG['dataflow']['template_path']}",
+                "parameters": {
+                    "input": CONFIG['dataflow']['input_path'],
+                    "output_table": CONFIG['dataflow']['output_table']
+                },
+                "environment": {
+                    "serviceAccountEmail": CONFIG['dataflow']['service_account_email'],
+                    "tempLocation": CONFIG['dataflow']['temp_location'],
+                    "autoscalingAlgorithm": CONFIG['dataflow']['autoscaling_algorithm'],  
+                    "machineType": CONFIG['dataflow']['machine_type'], 
+                    "numWorkers": CONFIG['dataflow']['num_workers'],
+                    "maxWorkers": CONFIG['dataflow']['max_workers'],
+                    "network": CONFIG['dataflow']['vpc'],              
+                    "subnetwork": CONFIG['dataflow']['subnetwork']     
+                    }
             }
         }
     )
