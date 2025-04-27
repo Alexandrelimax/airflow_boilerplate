@@ -1,0 +1,27 @@
+[
+    {
+        "name": "order_item_id",
+        "type": "INT64",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "order_id",
+        "type": "INT64",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "product_id",
+        "type": "INT64",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "quantity",
+        "type": "INT64",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "price",
+        "type": "FLOAT64",
+        "mode": "REQUIRED"
+    }
+]

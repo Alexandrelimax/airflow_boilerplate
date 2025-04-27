@@ -1,0 +1,22 @@
+[
+    {
+        "name": "year_month",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_orders",
+        "type": "INT64",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_revenue",
+        "type": "FLOAT64",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "avg_ticket_size",
+        "type": "FLOAT64",
+        "mode": "REQUIRED"
+    }
+]

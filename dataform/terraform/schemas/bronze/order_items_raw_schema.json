@@ -1,0 +1,27 @@
+[
+    {
+        "name": "order_item_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "order_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "product_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "quantity",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "price",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]

@@ -1,0 +1,27 @@
+[
+    {
+        "name": "order_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "user_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "order_date",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "updated_at",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]
