@@ -1,0 +1,33 @@
+{
+    "gcs": {
+        "bucket": "your-bucket",
+        "files": [
+            {
+                "file": "raw/clients.csv",
+                "table": "clients"
+            },
+            {
+                "file": "raw/products.csv",
+                "table": "products"
+            },
+            {
+                "file": "raw/orders.csv",
+                "table": "orders"
+            },
+            {
+                "file": "raw/stock.csv",
+                "table": "stock"
+            }
+        ]
+    },
+    "dataform": {
+        "project_id": "your-project-id",
+        "region": "us-central1",
+        "repository_id": "your-repo-id",
+        "branch": "main",
+        "compilation_uri_prefix": "projects/your-project-id/locations/us-central1/repositories/your-repo-id/compilationResults/"
+    },
+    "bigquery": {
+        "dataset": "bronze"
+    }
+}
