@@ -1,9 +1,9 @@
-output "secret_id" {
-  description = "ID do Secret Manager Secret."
-  value       = google_secret_manager_secret.secret.id
+output "github_token_secret_id" {
+  description = "ID do Secret Manager Secret do GitHub usado no Dataform."
+  value       = google_secret_manager_secret.github_token.id
 }
 
-output "secret_version_id" {
-  description = "ID da versão criada no Secret Manager."
-  value       = google_secret_manager_secret_version.version_id
+output "github_token_secret_version_name" {
+  description = "Nome completo da versão do Secret Manager usada como token do GitHub."
+  value       = google_secret_manager_secret_version.github_token_version.name
 }

@@ -16,6 +16,8 @@ resource "google_bigquery_table" "tables" {
 
   schema = file(each.value.schema_path)
 
+  deletion_protection = false
+
   depends_on = [
     google_bigquery_dataset.datasets
   ]

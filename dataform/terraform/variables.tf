@@ -4,6 +4,11 @@ variable "project_id" {
   type        = string
 }
 
+variable "project_number" {
+  description = "GCP Project Number"
+  type        = string
+}
+
 variable "region" {
   description = "GCP Location (ex: us-central1)"
   type        = string
@@ -62,10 +67,5 @@ variable "git_uri" {
 
 variable "branch_name" {
   description = "Nome da branch padrão do Git"
-  type        = string
-}
-
-variable "authentication_token_secret_version" {
-  description = "ID da versão da Secret Manager com o token do GitHub"
   type        = string
 }
