@@ -1,4 +1,5 @@
 {
+    "project_id": "{project_id}",
     "gcs": {
         "bucket": "your-bucket",
         "files": [
@@ -21,13 +22,10 @@
         ]
     },
     "dataform": {
-        "project_id": "your-project-id",
-        "region": "us-central1",
-        "repository_id": "your-repo-id",
+        "region": "{region}",
+        "repository_id": "{repository_id}",
+        "workspace_id": "{workspace_id}",
         "branch": "main",
-        "compilation_uri_prefix": "projects/your-project-id/locations/us-central1/repositories/your-repo-id/compilationResults/"
-    },
-    "bigquery": {
-        "dataset": "bronze"
+        "workspace": "projects/{project_id}/locations/{region}/repositories/{repository_id}/workspaces/{workspace_id}"
     }
 }

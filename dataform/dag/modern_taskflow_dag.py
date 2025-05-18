@@ -1,21 +1,23 @@
+import json
+from pathlib import Path
+from datetime import timedelta
 from airflow.decorators import dag, task, task_group
 from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
 from airflow.providers.google.cloud.hooks.dataform import DataformHook
-from airflow.utils.task_group import TaskGroup
-from datetime import timedelta
-import json
-import os
 
-# Load settings from external config file
-with open(os.path.join(os.path.dirname(__file__), 'settings.json')) as f:
-    config = json.load(f)
+
+CONFIG_PATH = Path('include/config/settings.json')
+
+with open(CONFIG_PATH, 'r') as file:
+    CONFIG = json.load(file)
 
 @dag(
     dag_id="gcs_to_bq_dataform_taskflow",
     start_date=days_ago(1),
     schedule_interval=None,
     catchup=False,
+    max_active_runs=1,
     tags=["dataform", "bronze", "taskflow"],
     default_args={"retries": 1, "retry_delay": timedelta(minutes=2)},
 )
@@ -23,19 +25,19 @@ def pipeline():
 
     @task_group(group_id="load_to_bronze")
     def load_to_bronze():
-        for item in config["gcs"]["files"]:
+        for item in CONFIG["gcs"]["files"]:
 
             @task(task_id=f"load_{item['table']}")
             def load_csv_to_bq(table: str, file_path: str):
                 client = BigQueryHook().get_client()
-                uri = f"gs://{config['gcs']['bucket']}/{file_path}"
+                uri = f"gs://{CONFIG['gcs']['bucket']}/{file_path}"
                 job_config = {
                     "configuration": {
                         "load": {
                             "sourceUris": [uri],
                             "destinationTable": {
-                                "projectId": config["dataform"]["project_id"],
-                                "datasetId": config["bigquery"]["dataset"],
+                                "projectId": CONFIG["dataform"]["project_id"],
+                                "datasetId": CONFIG["bigquery"]["dataset"],
                                 "tableId": table
                             },
                             "sourceFormat": "CSV",
@@ -47,7 +49,7 @@ def pipeline():
                 }
 
                 client.insert_job(
-                    projectId=config["dataform"]["project_id"],
+                    projectId=CONFIG["dataform"]["project_id"],
                     body=job_config
                 )
 
@@ -60,40 +62,42 @@ def pipeline():
         def compile_code() -> str:
             hook = DataformHook()
             result = hook.create_compilation_result(
-                project_id=config["dataform"]["project_id"],
-                region=config["dataform"]["region"],
-                repository_id=config["dataform"]["repository_id"],
-                compilation_result={"git_commitish": config["dataform"]["branch"]},
+                project_id=CONFIG["dataform"]["project_id"],
+                region=CONFIG["dataform"]["region"],
+                repository_id=CONFIG["dataform"]["repository_id"],
+                compilation_result={"git_commitish": CONFIG["dataform"]["branch"]},
             )
-            return result["name"].split("/")[-1]
+            return result.name
 
         @task()
-        def invoke_workflow(compilation_result_id: str) -> str:
+        def invoke_workflow(compilation_result_name: str) -> str:
             hook = DataformHook()
-            full_compilation_uri = config["dataform"]["compilation_uri_prefix"] + compilation_result_id
+
             result = hook.create_workflow_invocation(
-                project_id=config["dataform"]["project_id"],
-                region=config["dataform"]["region"],
-                repository_id=config["dataform"]["repository_id"],
-                workflow_invocation={"compilation_result": full_compilation_uri},
+                project_id=CONFIG["dataform"]["project_id"],
+                region=CONFIG["dataform"]["region"],
+                repository_id=CONFIG["dataform"]["repository_id"],
+                workflow_invocation={"compilation_result": compilation_result_name},
             )
-            return result["name"].split("/")[-1]
+            return result.name
 
         @task()
         def wait_for_completion(invocation_id: str):
             hook = DataformHook()
+            workflow_invocation_id = invocation_id.split("/")[-1]
+            
             hook.wait_for_workflow_invocation(
-                workflow_invocation_id=invocation_id,
-                repository_id=config["dataform"]["repository_id"],
-                project_id=config["dataform"]["project_id"],
-                region=config["dataform"]["region"],
+                workflow_invocation_id=workflow_invocation_id,
+                repository_id=CONFIG["dataform"]["repository_id"],
+                project_id=CONFIG["dataform"]["project_id"],
+                region=CONFIG["dataform"]["region"],
                 wait_time=10,
                 timeout=600,
             )
 
-        comp_id = compile_code()
-        inv_id = invoke_workflow(comp_id)
-        wait_for_completion(inv_id)
+        compilation_name = compile_code()
+        invocation_name = invoke_workflow(compilation_name)
+        wait_for_completion(invocation_name)
 
     load_to_bronze() >> run_dataform()
 

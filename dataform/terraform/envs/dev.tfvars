@@ -1,17 +1,17 @@
 # Dados do Projeto
-project_id     = "project_id"
-project_number = "project_number"
+project_id     = "{project_id}"
+project_number = "{project_number}"
 region         = "us-central1"
 
 # Secret Manager
 secret_id    = "github-token-dataform"
 secret_label = "github-access"
-secret_data  = "SEU_TOKEN_DO_GITHUB_AQUI"
+secret_data  = "{github_token}"
 
 # Dados do Dataform
 display_name = "meu-repositorio-dev"
 workspace_id = "dev-workspace"
-git_uri      = "https://github.com/seu-usuario/seu-repo.git"
+git_uri      = "{git_uri}"
 branch_name  = "main"
 
 # BigQuery Datasets
